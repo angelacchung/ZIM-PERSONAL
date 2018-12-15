@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Food roulette</title>
+
+<!-- Welcome to ZIM at https://zimjs.com - Code Creativity!              	        -->
+<!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS https://createjs.com -->
+<!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner 	-->
+<!-- ZIM is free to use. You can donate to help improve ZIM at http://zimjs.com/donate 	-->
+
+<script src="https://d309knd7es5f10.cloudfront.net/createjs_1.1_min.js"></script>
+<script src="https://d309knd7es5f10.cloudfront.net/zim_9.2.0_doc.js"></script>
+<!-- use zimjs.com/distill for minified individual functions! -->
+
+<script>
+
+// SCALING OPTIONS
+// scaling can have values as follows with full being the default
+// "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"	sets stage to window size with no scaling
+// "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+var scaling = "fit"; // this will resize to fit inside the screen dimensions
+var width = 1024;
+var height = 768;
+var color = light; // ZIM colors like green, blue, pink, faint, clear, etc. available globally
+var outerColor = dark; // any HTML colors like "violet", "#333", etc. fine to use
+var assets = ["choosing.mp3","result.mp3"];
+var path = "assets/";
+var frame = new Frame(scaling, width, height, color, outerColor, assets, path, new Waiter());
+frame.on("ready", function() {
+    zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+    var stage = frame.stage;
+    var stageW = frame.width;
+    var stageH = frame.height;
+
+    // see http://zimjs.com/learn.html for video and code tutorials
+    // see http://zimjs.com/docs.html for documentation
+    // see http://zimjs.com/bits.html for 64 Interactive Media techniques
+    var inst = new Label({
+      text:"Type in your food options in the textboxes and let us pick what you'll be eating!",
+      size:20,
+      color:white,
+      backgroundColor:grey
+    }).center().mov(0,-330).alp(.5);
+
+//start button
+var tile = new Tile(new Circle(30,grey), 2,3,400,60)
+  .center()
+  .pos(130,200);
+var pressButton = new Button({
+  label:"Click",
+  backgroundColor:pink,
+  rollBackgroundColor:purple})
+  .center(stage)
+  .mov(0,250);
+
+
+//dan's example
+//textbox
+var textCont = new Container(stageW,stageH).addTo();
+for(var i = 1; i<4; i++){
+  new TextArea(200, 40).center(textCont).pos(220,i*125).mov(0,80);
+  new TextArea(200, 40).center(textCont).pos(680,i*125).mov(0,80);
+};
+var label = new Label({text:""}).pos(20,20);
+var cont = new Container(stageW,stageH);
+var label = new Label({
+  text:"test",
+  backgroundColor:red,
+  color:white,
+  size:30
+}).centerReg(cont).mov(0,-120);
+// .animate({
+//     props:{scale:1},
+//     time:2300,
+//     ease:"elasticOut"});
+var congrats = new Label({
+  text:"Congratulations! That's what you will be eating",
+  color:moon,
+  backgroundColor:blue,
+  corner:25,
+}).centerReg(cont);
+// .animate({
+//     props:{scale:1},
+//     time:2300,
+//     ease:"elasticOut",
+//     })
+//scramble
+pressButton.on("click", function(){
+  pressButton.enabled=false;
+  zog("clicking");
+  frame.asset("choosing.mp3").play({loop:2});
+  var correct = 0;
+  interval(50,function(obj){
+      tile.loop(function (circle) {
+      circle.color=grey;
+    });
+    correct = rand(5)
+    tile.getChildAt(correct).color="yellow";
+    stage.update();
+    if (obj.count==obj.total) {
+      var test = textCont.getChildAt(correct).text
+      label.text=test;
+      cont.centerReg().sca(0.5).animate({
+          props:{scale:1},
+          time:2300,
+          ease:"elasticOut",
+          })
+      // zog("done");
+      celebrate();
+
+        win();
+        timeout(5000,function () {
+        cont.removeFrom()
+        pressButton.enabled=true;
+        })
+        }
+      },36)
+     });
+
+
+
+  function win() { // play the sound once we have waited
+  frame.asset("result.mp3").play();
+  }
+//congratulations emitter
+function celebrate(){
+  var emit = new Emitter({
+    obj:[new Rectangle(10,10), new Circle(10)],
+    random:{color:[blue, moon, pink,yellow]},
+    num:10,
+    force:10,
+  })
+  .centerReg();
+  emit.spurt({time:1000})
+};
+
+stage.update(); // this is needed to show any changes
+}); // end of ready
+
+</script>
+
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>
